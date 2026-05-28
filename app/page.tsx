@@ -55,6 +55,44 @@ export default function Home() {
     XLSX.writeFile(wb, "fuel_data.xlsx");
   };
 
+const importExcel = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const file = e.target.files?.[0];
+  if (!file) return;
+
+  const data = await file.arrayBuffer();
+  const workbook = XLSX.read(data);
+
+  const sheet = workbook.Sheets[workbook.SheetNames[0]];
+  const json = XLSX.utils.sheet_to_json<any>(sheet);
+
+  const imported: Entry[] = json
+    .map((row) => {
+      // parsing data formato italiano gg/mm/aa
+      const parseDate = (d: string) => {
+        const parts = d.split("/");
+        if (parts.length !== 3) return null;
+        return `${parts[2].length === 2 ? "20" + parts[2] : parts[2]}-${parts[1]}-${parts[0]}`;
+      };
+
+      return {
+        date: parseDate(row.Data),
+        km: Number(row.Km),
+        liters: Number(row.Litri),
+        euro: Number(row.Euro),
+      };
+    })
+    .filter(
+      (e) =>
+        e.date &&
+        !isNaN(e.km) &&
+        !isNaN(e.liters) &&
+        !isNaN(e.euro)
+    );
+
+  // unisci con dati esistenti
+  setEntries([...entries, ...imported]);
+};
+  
   // Statistiche ultimi 6 mesi
   const sixMonthsAgo = new Date();
   sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
@@ -109,6 +147,15 @@ export default function Home() {
           className="border p-2 rounded"
         />
 
+
+        <input
+  type="file"
+  accept=".xlsx, .xls"
+  onChange={importExcel}
+  className="mt-4"
+/>
+
+        
         <button
           onClick={addEntry}
           className="bg-blue-500 text-white p-2 rounded"
