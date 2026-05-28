@@ -52,6 +52,17 @@ export default function Home() {
     setForm({ km: 0, liters: 0, euro: 0 });
   };
 
+const updateEntry = (index: number, field: keyof Entry, value: number | string) => {
+  const updated = [...entries];
+
+  updated[index] = {
+    ...updated[index],
+    [field]: value,
+  };
+
+  setEntries(updated);
+};
+  
   // ✅ Export
   const exportExcel = () => {
     const ws = XLSX.utils.json_to_sheet(entries);
@@ -117,6 +128,7 @@ export default function Home() {
 
   const weeklyAvg = total / 26;
   const monthlyAvg = total / 6;
+  const lastFive = entries.slice(-5);
 
   return (
     <div className="p-4 max-w-md mx-auto">
@@ -202,6 +214,68 @@ export default function Home() {
             className="w-full"
           />
         </div>
+
+
+<h2 className="font-bold mt-4 mb-2">Ultimi 5 inserimenti</h2>
+
+<div className="overflow-x-auto">
+  <table className="w-full text-sm border">
+    <thead>
+      <tr className="bg-gray-300">
+        <th className="border p-1">Data</th>
+        <th className="border p-1">Km</th>
+        <th className="border p-1">Litri</th>
+        <th className="border p-1">€</th>
+      </tr>
+    </thead>
+    <tbody>
+      {lastFive.map((entry, i) => {
+        const realIndex = entries.length - lastFive.length + i;
+
+        return (
+          <tr key={realIndex}>
+            <td className="border p-1">{entry.date}</td>
+
+            <td className="border p-1">
+              <input
+                type="number"
+                value={entry.km}
+                onChange={(e) =>
+                  updateEntry(realIndex, "km", Number(e.target.value))
+                }
+                className="w-full"
+              />
+            </td>
+
+            <td className="border p-1">
+              <input
+                type="number"
+                value={entry.liters}
+                onChange={(e) =>
+                  updateEntry(realIndex, "liters", Number(e.target.value))
+                }
+                className="w-full"
+              />
+            </td>
+
+            <td className="border p-1">
+              <input
+                type="number"
+                value={entry.euro}
+                onChange={(e) =>
+                  updateEntry(realIndex, "euro", Number(e.target.value))
+                }
+                className="w-full"
+              />
+            </td>
+          </tr>
+        );
+      })}
+    </tbody>
+  </table>
+</div>
+
+      
       )}
     </div>
   );
