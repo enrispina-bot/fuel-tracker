@@ -65,29 +65,41 @@ const importExcel = async (e: React.ChangeEvent<HTMLInputElement>) => {
   const sheet = workbook.Sheets[workbook.SheetNames[0]];
   const json = XLSX.utils.sheet_to_json<any>(sheet);
 
-  const imported: Entry[] = json
-    .map((row) => {
-      // parsing data formato italiano gg/mm/aa
-      const parseDate = (d: string) => {
-        const parts = d.split("/");
-        if (parts.length !== 3) return null;
-        return `${parts[2].length === 2 ? "20" + parts[2] : parts[2]}-${parts[1]}-${parts[0]}`;
-      };
 
-      return {
-        date: parseDate(row.Data),
-        km: Number(row.Km),
-        liters: Number(row.Litri),
-        euro: Number(row.Euro),
-      };
-    })
-    .filter(
-      (e) =>
-        e.date &&
-        !isNaN(e.km) &&
-        !isNaN(e.liters) &&
-        !isNaN(e.euro)
-    );
+
+
+  const imported: Entry[] = json
+  .map((row) => {
+    const parseDate = (d: string) => {
+      if (!d || typeof d !== "string") return null;
+
+      const parts = d.split("/");
+      if (parts.length !== 3) return null;
+
+      const year = parts[2].length === 2 ? "20" + parts[2] : parts[2];
+
+      return `${year}-${parts[1]}-${parts[0]}`;
+    };
+
+    const date = parseDate(row.Data);
+
+    if (!date) return null;
+
+    return {
+      date: date,
+      km: Number(row.Km),
+      liters: Number(row.Litri),
+      euro: Number(row.Euro),
+    };
+  })
+  .filter(
+    (e): e is Entry =>
+      e !== null &&
+      !isNaN(e.km) &&
+      !isNaN(e.liters) &&
+      !isNaN(e.euro)
+  );
+
 
   // unisci con dati esistenti
   setEntries([...entries, ...imported]);
