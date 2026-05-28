@@ -18,6 +18,8 @@ export default function Home() {
     euro: 0,
   });
 
+const [showConfig, setShowConfig] = useState(false);
+  
   // Carica dati da localStorage
   useEffect(() => {
     const saved = localStorage.getItem("fuel-data");
@@ -30,22 +32,32 @@ export default function Home() {
   }, [entries]);
 
   // Aggiunta entry con data automatica
+
+
   const addEntry = () => {
-    if (!form.km || !form.liters || !form.euro) return;
+  if (!form.km || !form.liters || !form.euro) return;
 
-    const newEntry: Entry = {
-      ...form,
-      date: new Date().toISOString().split("T")[0],
-    };
+  // trovo l'ultimo inserimento (il più recente)
+  const lastEntry = entries[entries.length - 1];
 
-    setEntries([...entries, newEntry]);
+  if (lastEntry && form.km < lastEntry.km) {
+    alert("Errore: i Km inseriti sono inferiori all'ultimo valore registrato.");
+    return;
+  }
 
-    setForm({
-      km: 0,
-      liters: 0,
-      euro: 0,
-    });
+  const newEntry: Entry = {
+    ...form,
+    date: new Date().toISOString().split("T")[0],
   };
+
+  setEntries([...entries, newEntry]);
+
+  setForm({
+    km: 0,
+    liters: 0,
+    euro: 0,
+  });
+};
 
   // Export Excel
   const exportExcel = () => {
@@ -167,6 +179,13 @@ const importExcel = async (e: React.ChangeEvent<HTMLInputElement>) => {
   className="mt-4"
 />
 
+     <button
+  onClick={() => setShowConfig(!showConfig)}
+  className="bg-gray-500 text-white p-2 rounded w-full mb-4"
+>
+  ⚙️ Configurazione
+</button>
+
         
         <button
           onClick={addEntry}
@@ -187,12 +206,22 @@ const importExcel = async (e: React.ChangeEvent<HTMLInputElement>) => {
       </div>
 
       {/* EXPORT */}
-      <button
-        onClick={exportExcel}
-        className="bg-green-500 text-white p-2 rounded w-full"
-      >
-        Esporta Excel
-      </button>
-    </div>
-  );
-}
+    {showConfig && (
+  <div className="mt-4 p-3 border rounded bg-gray-100">
+
+    <button
+      onClick={exportExcel}
+      className="bg-green-500 text-white p-2 rounded w-full mb-3"
+    >
+      Esporta Excel
+    </button>
+
+    <input
+      type="file"
+      accept=".xlsx, .xls"
+      onChange={importExcel}
+      className="w-full"
+    />
+
+  </div>
+)}
