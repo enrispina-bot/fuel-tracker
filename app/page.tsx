@@ -136,7 +136,7 @@ export default function Home() {
   const lastFive = entries.slice(-5);
 
   return (
-    <div className="p-4 max-w-md mx-auto">
+    <div className="p-6 max-w-lg mx-auto text-lg">
       <h1 className="text-xl font-bold mb-4">🚗 Fuel Tracker</h1>
 
       <p className="text-sm text-gray-500 mb-2">
@@ -152,7 +152,7 @@ export default function Home() {
           onChange={(e) =>
             setForm({ ...form, km: Number(e.target.value) })
           }
-          className="border p-2 rounded"
+          className="border p-3 rounded text-lg"
         />
 
         <input
@@ -162,7 +162,7 @@ export default function Home() {
           onChange={(e) =>
             setForm({ ...form, liters: Number(e.target.value) })
           }
-          className="border p-2 rounded"
+          className="border p-3 rounded text-lg"
         />
 
         <input
@@ -172,12 +172,12 @@ export default function Home() {
           onChange={(e) =>
             setForm({ ...form, euro: Number(e.target.value) })
           }
-          className="border p-2 rounded"
+          className="border p-3 rounded text-lg"
         />
 
         <button
           onClick={addEntry}
-          className="bg-blue-500 text-white p-2 rounded"
+          className="bg-blue-500 text-white p-3 rounded text-lg"
         >
           Salva
         </button>
@@ -185,10 +185,10 @@ export default function Home() {
 
       {/* STATISTICHE */}
       <div className="mb-4">
-        <p className="font-semibold">
+        <p className="font-semibold text-lg">
           Media settimanale: € {weeklyAvg.toFixed(2)}
         </p>
-        <p className="font-semibold">
+       <p className="font-semibold text-lg">
           Media mensile: € {monthlyAvg.toFixed(2)}
         </p>
       </div>
@@ -223,13 +223,13 @@ export default function Home() {
             Ultimi 5 inserimenti
           </h2>
 
-          <table className="w-full text-sm border">
+        <table className="w-full text-base border">
             <thead>
               <tr className="bg-gray-300">
-                <th className="border p-1">Data</th>
-                <th className="border p-1">Km</th>
-                <th className="border p-1">Litri</th>
-                <th className="border p-1">€</th>
+                <th className="border p-2">Data</th>
+                <th className="border p-2">Km</th>
+                <th className="border p-2">Litri</th>
+                <th className="border p-2">€</th>
               </tr>
             </thead>
             <tbody>
