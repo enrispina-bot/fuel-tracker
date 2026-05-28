@@ -18,9 +18,9 @@ export default function Home() {
     euro: 0,
   });
 
-const [showConfig, setShowConfig] = useState(false);
-  
-  // Carica dati da localStorage
+  const [showConfig, setShowConfig] = useState(false);
+
+  // Carica dati
   useEffect(() => {
     const saved = localStorage.getItem("fuel-data");
     if (saved) setEntries(JSON.parse(saved));
@@ -31,35 +31,28 @@ const [showConfig, setShowConfig] = useState(false);
     localStorage.setItem("fuel-data", JSON.stringify(entries));
   }, [entries]);
 
-  // Aggiunta entry con data automatica
-
-
+  // ✅ Inserimento con controllo KM
   const addEntry = () => {
-  if (!form.km || !form.liters || !form.euro) return;
+    if (!form.km || !form.liters || !form.euro) return;
 
-  // trovo l'ultimo inserimento (il più recente)
-  const lastEntry = entries[entries.length - 1];
+    const maxKm = Math.max(...entries.map(e => e.km), 0);
 
-  if (lastEntry && form.km < lastEntry.km) {
-    alert("Errore: i Km inseriti sono inferiori all'ultimo valore registrato.");
-    return;
-  }
+    if (form.km < maxKm) {
+      alert("Errore: i Km sono inferiori al massimo registrato.");
+      return;
+    }
 
-  const newEntry: Entry = {
-    ...form,
-    date: new Date().toISOString().split("T")[0],
+    const newEntry: Entry = {
+      ...form,
+      date: new Date().toISOString().split("T")[0],
+    };
+
+    setEntries([...entries, newEntry]);
+
+    setForm({ km: 0, liters: 0, euro: 0 });
   };
 
-  setEntries([...entries, newEntry]);
-
-  setForm({
-    km: 0,
-    liters: 0,
-    euro: 0,
-  });
-};
-
-  // Export Excel
+  // ✅ Export
   const exportExcel = () => {
     const ws = XLSX.utils.json_to_sheet(entries);
     const wb = XLSX.utils.book_new();
@@ -67,57 +60,52 @@ const [showConfig, setShowConfig] = useState(false);
     XLSX.writeFile(wb, "fuel_data.xlsx");
   };
 
-const importExcel = async (e: React.ChangeEvent<HTMLInputElement>) => {
-  const file = e.target.files?.[0];
-  if (!file) return;
+  // ✅ Import
+  const importExcel = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
 
-  const data = await file.arrayBuffer();
-  const workbook = XLSX.read(data);
+    const data = await file.arrayBuffer();
+    const workbook = XLSX.read(data);
 
-  const sheet = workbook.Sheets[workbook.SheetNames[0]];
-  const json = XLSX.utils.sheet_to_json<any>(sheet);
+    const sheet = workbook.Sheets[workbook.SheetNames[0]];
+    const json = XLSX.utils.sheet_to_json<any>(sheet);
 
+    const imported: Entry[] = json
+      .map((row) => {
+        const parseDate = (d: string) => {
+          if (!d || typeof d !== "string") return null;
 
+          const parts = d.split("/");
+          if (parts.length !== 3) return null;
 
+          const year = parts[2].length === 2 ? "20" + parts[2] : parts[2];
 
-  const imported: Entry[] = json
-  .map((row) => {
-    const parseDate = (d: string) => {
-      if (!d || typeof d !== "string") return null;
+          return `${year}-${parts[1]}-${parts[0]}`;
+        };
 
-      const parts = d.split("/");
-      if (parts.length !== 3) return null;
+        const date = parseDate(row.Data);
+        if (!date) return null;
 
-      const year = parts[2].length === 2 ? "20" + parts[2] : parts[2];
+        return {
+          date,
+          km: Number(row.Km),
+          liters: Number(row.Litri),
+          euro: Number(row.Euro),
+        };
+      })
+      .filter(
+        (e): e is Entry =>
+          e !== null &&
+          !isNaN(e.km) &&
+          !isNaN(e.liters) &&
+          !isNaN(e.euro)
+      );
 
-      return `${year}-${parts[1]}-${parts[0]}`;
-    };
+    setEntries([...entries, ...imported]);
+  };
 
-    const date = parseDate(row.Data);
-
-    if (!date) return null;
-
-    return {
-      date: date,
-      km: Number(row.Km),
-      liters: Number(row.Litri),
-      euro: Number(row.Euro),
-    };
-  })
-  .filter(
-    (e): e is Entry =>
-      e !== null &&
-      !isNaN(e.km) &&
-      !isNaN(e.liters) &&
-      !isNaN(e.euro)
-  );
-
-
-  // unisci con dati esistenti
-  setEntries([...entries, ...imported]);
-};
-  
-  // Statistiche ultimi 6 mesi
+  // ✅ Statistiche
   const sixMonthsAgo = new Date();
   sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
 
@@ -127,14 +115,14 @@ const importExcel = async (e: React.ChangeEvent<HTMLInputElement>) => {
 
   const total = filtered.reduce((acc, e) => acc + e.euro, 0);
 
-  const weeklyAvg = total / 26; // settimane in 6 mesi
+  const weeklyAvg = total / 26;
   const monthlyAvg = total / 6;
 
   return (
     <div className="p-4 max-w-md mx-auto">
       <h1 className="text-xl font-bold mb-4">🚗 Fuel Tracker</h1>
 
-      {/* DATA AUTOMATICA */}
+      {/* DATA */}
       <p className="text-sm text-gray-500 mb-2">
         Data: {new Date().toLocaleDateString("it-IT")}
       </p>
@@ -171,22 +159,6 @@ const importExcel = async (e: React.ChangeEvent<HTMLInputElement>) => {
           className="border p-2 rounded"
         />
 
-
-        <input
-  type="file"
-  accept=".xlsx, .xls"
-  onChange={importExcel}
-  className="mt-4"
-/>
-
-     <button
-  onClick={() => setShowConfig(!showConfig)}
-  className="bg-gray-500 text-white p-2 rounded w-full mb-4"
->
-  ⚙️ Configurazione
-</button>
-
-        
         <button
           onClick={addEntry}
           className="bg-blue-500 text-white p-2 rounded"
@@ -198,30 +170,39 @@ const importExcel = async (e: React.ChangeEvent<HTMLInputElement>) => {
       {/* STATISTICHE */}
       <div className="mb-4">
         <p className="font-semibold">
-          Media settimanale (6 mesi): € {weeklyAvg.toFixed(2)}
+          Media settimanale: € {weeklyAvg.toFixed(2)}
         </p>
         <p className="font-semibold">
-          Media mensile (6 mesi): € {monthlyAvg.toFixed(2)}
+          Media mensile: € {monthlyAvg.toFixed(2)}
         </p>
       </div>
 
-      {/* EXPORT */}
-    {showConfig && (
-  <div className="mt-4 p-3 border rounded bg-gray-100">
+      {/* CONFIG */}
+      <button
+        onClick={() => setShowConfig(!showConfig)}
+        className="bg-gray-500 text-white p-2 rounded w-full mb-4"
+      >
+        ⚙️ {showConfig ? "Chiudi configurazione" : "Configurazione"}
+      </button>
 
-    <button
-      onClick={exportExcel}
-      className="bg-green-500 text-white p-2 rounded w-full mb-3"
-    >
-      Esporta Excel
-    </button>
+      {/* AREA CONFIGURAZIONE */}
+      {showConfig && (
+        <div className="mt-4 p-3 border rounded bg-gray-100">
+          <button
+            onClick={exportExcel}
+            className="bg-green-500 text-white p-2 rounded w-full mb-3"
+          >
+            Esporta Excel
+          </button>
 
-    <input
-      type="file"
-      accept=".xlsx, .xls"
-      onChange={importExcel}
-      className="w-full"
-    />
-
-  </div>
-)}
+          <input
+            type="file"
+            accept=".xlsx, .xls"
+            onChange={importExcel}
+            className="w-full"
+          />
+        </div>
+      )}
+    </div>
+  );
+}
