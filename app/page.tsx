@@ -7,7 +7,7 @@ import { signInWithPopup, onAuthStateChanged, signOut } from "firebase/auth";
 import { collection, addDoc, getDocs, updateDoc, doc } from "firebase/firestore";
 
 type Entry = {
-  id?: string; ✅ importante
+  id?: string;
   date: string;
   km: number;
   liters: number;
