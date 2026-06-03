@@ -2,56 +2,109 @@
 
 import { useState, useEffect } from "react";
 import * as XLSX from "xlsx";
+import { auth, provider, db } from "@/lib/firebase";
+import { signInWithPopup, onAuthStateChanged, signOut } from "firebase/auth";
+import { collection, addDoc, getDocs, updateDoc, doc } from "firebase/firestore";
 
 type Entry = {
+  id?: string; ✅ importante
   date: string;
   km: number;
   liters: number;
   euro: number;
 };
 
+
+
+
 export default function Home() {
   const [entries, setEntries] = useState<Entry[]>([]);
   const [form, setForm] = useState({ km: 0, liters: 0, euro: 0 });
   const [showConfig, setShowConfig] = useState(false);
+  const [user, setUser] = useState<any>(null);
 
-  useEffect(() => {
-    const saved = localStorage.getItem("fuel-data");
-    if (saved) setEntries(JSON.parse(saved));
-  }, []);
 
-  useEffect(() => {
-    localStorage.setItem("fuel-data", JSON.stringify(entries));
-  }, [entries]);
 
-  const addEntry = () => {
-    if (!form.km || !form.liters || !form.euro) return;
+useEffect(() => {
+  const unsub = onAuthStateChanged(auth, (u) => {
+    setUser(u);
+  });
+  return () => unsub();
+}, []);
 
-    const maxKm = Math.max(...entries.map((e) => e.km), 0);
+useEffect(() => {
+  if (!user) return;
 
-    if (form.km < maxKm) {
-      alert("Errore: Km inferiori al massimo registrato");
-      return;
-    }
+  const loadData = async () => {
+    const snapshot = await getDocs(
+      collection(db, "users", user.uid, "entries")
+    );
 
-    const newEntry: Entry = {
-      ...form,
-      date: new Date().toISOString().split("T")[0],
-    };
+const data = snapshot.docs.map(doc => ({
+  id: doc.id,
+  ...doc.data()
+})) as Entry[];
 
-    setEntries([...entries, newEntry]);
-    setForm({ km: 0, liters: 0, euro: 0 });
+    setEntries(data);
   };
 
-  const updateEntry = (
-    index: number,
-    field: keyof Entry,
-    value: number
-  ) => {
-    const updated = [...entries];
-    updated[index] = { ...updated[index], [field]: value };
-    setEntries(updated);
+  loadData();
+}, [user]);
+  
+ 
+  
+const login = async () => {
+  await signInWithPopup(auth, provider);
+};
+
+  const logout = async () => {
+  await signOut(auth);
+};
+
+
+const addEntry = async () => {
+  if (!form.km || !form.liters || !form.euro || !user) return;
+
+  const maxKm = Math.max(...entries.map((e) => e.km), 0);
+
+if (form.km < maxKm) {
+  alert("Errore: Km inferiori al massimo registrato");
+  return;
+}
+
+  const newEntry: Entry = {
+    ...form,
+    date: new Date().toISOString().split("T")[0],
   };
+
+  await addDoc(collection(db, "users", user.uid, "entries"), newEntry);
+
+  setEntries([...entries, newEntry]);
+};
+
+
+const updateEntry = async (
+  index: number,
+  field: keyof Entry,
+  value: number
+) => {
+  const entry = entries[index];
+
+  if (!entry.id || !user) return;
+
+  // aggiorna su Firebase
+  const ref = doc(db, "users", user.uid, "entries", entry.id);
+
+  await updateDoc(ref, {
+    [field]: value,
+  });
+
+  // aggiorna stato locale
+  const updated = [...entries];
+  updated[index] = { ...entry, [field]: value };
+
+  setEntries(updated);
+};
 
   const exportExcel = () => {
     const ws = XLSX.utils.json_to_sheet(entries);
@@ -94,7 +147,15 @@ export default function Home() {
           !isNaN(e.euro)
       );
 
-    setEntries([...entries, ...imported]);
+for (const entry of imported) {
+  await addDoc(
+    collection(db, "users", user.uid, "entries"),
+    entry
+  );
+}
+
+setEntries([...entries, ...imported]);
+
   };
 
   const sixMonthsAgo = new Date();
@@ -113,6 +174,17 @@ export default function Home() {
 
   return (
     <div className="p-8 max-w-xl mx-auto text-xl">
+
+{!user ? (
+  <button onClick={login}>Login con Google</button>
+) : (
+  <>
+    <p>{user.email}</p>
+    <button onClick={logout}>Logout</button>
+  </>
+)}
+
+      
       <h1 className="text-3xl font-bold mb-6 text-center">
         🚗 Fuel Tracker
       </h1>
@@ -214,7 +286,29 @@ export default function Home() {
                 const realIndex =
                   entries.length - lastFive.length + i;
 
-                return (
+
+if (!user) {
+  return (
+    <div style={{ textAlign: "center", marginTop: "50px" }}>
+      <button
+        onClick={login}
+        style={{
+          fontSize: "22px",
+          padding: "15px",
+          borderRadius: "10px",
+          backgroundColor: "#4285F4",
+          color: "white",
+        }}
+      >
+        Accedi con Google
+      </button>
+    </div>
+  );
+}
+
+
+  return (
+                 
                   <tr key={realIndex}>
                     <td className="border p-2 text-center">
                       {entry.date}
