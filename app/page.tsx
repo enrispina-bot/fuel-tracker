@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import * as XLSX from "xlsx";
-import { auth, provider, db } from "@/lib/firebase";
+import { auth, provider, db } from "../lib/firebase";
 import { signInWithPopup, onAuthStateChanged, signOut } from "firebase/auth";
 import { collection, addDoc, getDocs, updateDoc, doc } from "firebase/firestore";
 
