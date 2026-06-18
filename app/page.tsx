@@ -82,7 +82,13 @@ export default function Home() {
     const entry = entries[index];
     if (!entry.id || !user) return;
 
-const numericValue = value === "" ? "" : Number(value);
+
+const normalized = value.replace(",", ".");
+const numericValue =
+  normalized === "" || isNaN(Number(normalized))
+    ? ""
+    : Number(normalized);
+
 
 const updated = [...entries];
 updated[index] = {
@@ -99,7 +105,13 @@ updated[index] = {
 
 if (value !== "" && !isNaN(Number(value))) {
       const ref = doc(db, "users", user.uid, "entries", entry.id);
-      await updateDoc(ref, { [field]: Number(value) });
+ const normalized = value.replace(",", ".");
+
+if (normalized !== "" && !isNaN(Number(normalized))) {
+  await updateDoc(ref, {
+    [field]: Number(normalized),
+  });
+}
     }
   };
 
@@ -204,33 +216,79 @@ if (value !== "" && !isNaN(Number(value))) {
       <div className="flex flex-col gap-4 mb-6">
        
 <input
-  type="number"
+  
+type="text"
+inputMode="decimal"
+
   placeholder="Km"
   value={form.km || ""}
-  onChange={(e) =>
-    setForm({ ...form, km: Number(e.target.value) })
-  }
+onChange={(e) => {
+  const value = e.target.value;
+  const normalized = value.replace(",", ".");
+
+  const numberValue =
+    normalized === "" || isNaN(Number(normalized))
+      ? 0
+      : Number(normalized);
+
+  setForm({
+    ...form,
+    km: numberValue,
+  });
+}}
   className="border border-gray-300 p-4 rounded-xl text-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
 />
 
 
         <input
-          type="number"
+         
+type="text"
+inputMode="decimal"
+
           placeholder="Litri"
           value={form.liters || ""}
-          onChange={(e) =>
-            setForm({ ...form, liters: Number(e.target.value) })
-          }
+ 
+onChange={(e) => {
+      const value = e.target.value;
+      const normalized = value.replace(",", ".");
+
+      const numberValue =
+        normalized === "" || isNaN(Number(normalized))
+          ? 0
+          : Number(normalized);
+
+      setForm({
+        ...form,
+        liters: numberValue,
+      });
+    }}
+
            className="border border-gray-300 p-4 rounded-xl text-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
         />
 
         <input
-          type="number"
+         
+type="text"
+inputMode="decimal"
+
           placeholder="Euro"
           value={form.euro || ""}
-          onChange={(e) =>
-            setForm({ ...form, euro: Number(e.target.value) })
-          }
+        
+onChange={(e) => {
+      const value = e.target.value;
+      const normalized = value.replace(",", ".");
+
+      const numberValue =
+        normalized === "" || isNaN(Number(normalized))
+          ? 0
+          : Number(normalized);
+
+      setForm({
+        ...form,
+        euro: numberValue,
+      });
+    }}
+
            className="border border-gray-300 p-4 rounded-xl text-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
         />
 
