@@ -137,30 +137,30 @@ const updateEntry = async (
     const sheet = workbook.Sheets[workbook.SheetNames[0]];
     const json = XLSX.utils.sheet_to_json<any>(sheet);
 
-    const imported: Entry[] = json
-      .map((row) => {
-        if (!row.Data) return null;
+   const imported = json
+  .map((row) => {
+    if (!row.Data) return null;
 
-        const parts = row.Data.split("/");
-        if (parts.length !== 3) return null;
+    const parts = row.Data.split("/");
+    if (parts.length !== 3) return null;
 
-        const year =
-          parts[2].length === 2 ? "20" + parts[2] : parts[2];
+    const year =
+      parts[2].length === 2 ? "20" + parts[2] : parts[2];
 
-        return {
-          date: `${year}-${parts[1]}-${parts[0]}`,
-          km: Number(row.Km),
-          liters: Number(row.Litri),
-          euro: Number(row.Euro),
-        };
-      })
-      .filter(
-        (e): e is Entry =>
-          e !== null &&
-          !isNaN(e.km) &&
-          !isNaN(e.liters) &&
-          !isNaN(e.euro)
-      );
+    return {
+      date: `${year}-${parts[1]}-${parts[0]}`,
+      km: Number(row.Km),
+      liters: Number(row.Litri),
+      euro: Number(row.Euro),
+    };
+  })
+  .filter(
+    (e): e is Entry =>
+      e !== null &&
+      !isNaN(Number(e.km)) &&
+      !isNaN(Number(e.liters)) &&
+      !isNaN(Number(e.euro))
+  );
 
     for (const entry of imported) {
       await addDoc(
