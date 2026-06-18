@@ -86,26 +86,32 @@ if (form.km < maxKm) {
 const updateEntry = async (
   index: number,
   field: keyof Entry,
-  value: number
+  value: string
 ) => {
   const entry = entries[index];
-
   if (!entry.id || !user) return;
 
-  // aggiorna su Firebase
-  const ref = doc(db, "users", user.uid, "entries", entry.id);
-
-  await updateDoc(ref, {
-    [field]: value,
-  });
+  const numericValue = value === "" ? "" : Number(value);
 
   // aggiorna stato locale
   const updated = [...entries];
-  updated[index] = { ...entry, [field]: value };
+  updated[index] = {
+    ...entry,
+    [field]: numericValue,
+  };
 
   setEntries(updated);
-};
 
+  // aggiorna firebase SOLO se numero valido
+  if (value !== "") {
+    const ref = doc(db, "users", user.uid, "entries", entry.id);
+
+    await updateDoc(ref, {
+      [field]: Number(value),
+    });
+  }
+};
+  
   const exportExcel = () => {
     const ws = XLSX.utils.json_to_sheet(entries);
     const wb = XLSX.utils.book_new();
@@ -170,7 +176,11 @@ setEntries([...entries, ...imported]);
   const weeklyAvg = total / 26;
   const monthlyAvg = total / 6;
 
-  const lastFive = entries.slice(-5);
+
+const lastFive = [...entries]
+  .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+  .slice(0, 5);
+
 
   return (
     <div className="p-8 max-w-xl mx-auto text-xl">
@@ -200,7 +210,7 @@ setEntries([...entries, ...imported]);
           placeholder="Km"
           value={form.km || ""}
           onChange={(e) =>
-            setForm({ ...form, km: Number(e.target.value) })
+            setForm({ ...form, km: e.target.value) })
           }
           className="border p-4 rounded-xl text-xl"
         />
@@ -210,7 +220,7 @@ setEntries([...entries, ...imported]);
           placeholder="Litri"
           value={form.liters || ""}
           onChange={(e) =>
-            setForm({ ...form, liters: Number(e.target.value) })
+            setForm({ ...form, liters: e.target.value) })
           }
           className="border p-4 rounded-xl text-xl"
         />
@@ -220,7 +230,7 @@ setEntries([...entries, ...imported]);
           placeholder="Euro"
           value={form.euro || ""}
           onChange={(e) =>
-            setForm({ ...form, euro: Number(e.target.value) })
+            setForm({ ...form, euro: e.target.value) })
           }
           className="border p-4 rounded-xl text-xl"
         />
@@ -317,7 +327,7 @@ if (!user) {
                     <td className="border p-2">
                       <input
                         type="number"
-                        value={entry.km}
+                       value={entry.km ?? ""}
                         onChange={(e) =>
                           updateEntry(
                             realIndex,
