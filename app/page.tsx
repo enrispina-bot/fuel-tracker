@@ -195,14 +195,7 @@ export default function Home() {
         </button>
       </div>
 
-      {/* resto app */}
-
-    </div>
-  </div>
-);
-
-
-      {/* FORM */}
+        {/* FORM */}
       <div className="flex flex-col gap-4 mb-6">
        
 <input
@@ -309,5 +302,6 @@ export default function Home() {
         </div>
       )}
     </div>
+     </div>  
   );
 }
