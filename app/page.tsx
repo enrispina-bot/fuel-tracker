@@ -137,7 +137,7 @@ const updateEntry = async (
     const sheet = workbook.Sheets[workbook.SheetNames[0]];
     const json = XLSX.utils.sheet_to_json<any>(sheet);
 
-   const imported = json
+const imported = json
   .map((row) => {
     if (!row.Data) return null;
 
@@ -154,13 +154,7 @@ const updateEntry = async (
       euro: Number(row.Euro),
     };
   })
-  .filter(
-    (e): e is Entry =>
-      e !== null &&
-      !isNaN(Number(e.km)) &&
-      !isNaN(Number(e.liters)) &&
-      !isNaN(Number(e.euro))
-  );
+  .filter((e) => e !== null) as Entry[];
 
     for (const entry of imported) {
       await addDoc(
