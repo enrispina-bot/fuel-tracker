@@ -182,7 +182,11 @@ const imported = json
     (e) => new Date(e.date) >= sixMonthsAgo
   );
 
-  const total = filtered.reduce((acc, e) => acc + e.euro, 0);
+const total = filtered.reduce(
+  (acc, e) => acc + (isNaN(Number(e.euro)) ? 0 : Number(e.euro)),
+  0
+);
+
 
   const weeklyAvg = total / 26;
   const monthlyAvg = total / 6;
