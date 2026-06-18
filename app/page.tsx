@@ -181,24 +181,39 @@ export default function Home() {
   }
 
   return (
-    <div className="p-8 max-w-xl mx-auto text-xl">
-      <p>{user.email}</p>
-      <button onClick={logout}>Logout</button>
+    <div className="min-h-screen bg-gray-100 p-6 flex flex-col items-center">
+  <div className="w-full max-w-md bg-white rounded-2xl shadow-xl p-6">
+    
+</div>
+</div>
 
-      <h1 className="text-3xl font-bold mb-6 text-center">
-        🚗 Fuel Tracker
-      </h1>
+    <div className="flex justify-between items-center mb-6">
+  <div>
+    <h1 className="text-2xl font-bold">🚗 Fuel Tracker</h1>
+    <p className="text-sm text-gray-500">{user.email}</p>
+  </div>
+
+  <button
+    onClick={logout}
+    className="text-sm text-red-500 font-semibold"
+  >
+    Logout
+  </button>
+</div>
 
       {/* FORM */}
       <div className="flex flex-col gap-4 mb-6">
-        <input
-          type="number"
-          placeholder="Km"
-          value={form.km || ""}
-          onChange={(e) =>
-            setForm({ ...form, km: Number(e.target.value) })
-          }
-        />
+       
+<input
+  type="number"
+  placeholder="Km"
+  value={form.km || ""}
+  onChange={(e) =>
+    setForm({ ...form, km: Number(e.target.value) })
+  }
+  className="border border-gray-300 p-4 rounded-xl text-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
+/>
+
 
         <input
           type="number"
@@ -207,6 +222,7 @@ export default function Home() {
           onChange={(e) =>
             setForm({ ...form, liters: Number(e.target.value) })
           }
+           className="border border-gray-300 p-4 rounded-xl text-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
         />
 
         <input
@@ -216,18 +232,33 @@ export default function Home() {
           onChange={(e) =>
             setForm({ ...form, euro: Number(e.target.value) })
           }
+           className="border border-gray-300 p-4 rounded-xl text-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
         />
 
-        <button onClick={addEntry}>Salva</button>
+    <button
+  onClick={addEntry}
+  className="bg-blue-500 text-white p-4 rounded-xl text-lg font-bold shadow-md active:scale-95 transition"
+>
+  Salva
+</button>
       </div>
 
-      <p>Settimanale: € {weeklyAvg.toFixed(2)}</p>
-      <p>Mensile: € {monthlyAvg.toFixed(2)}</p>
+   <div className="bg-gray-50 rounded-xl p-4 mb-6 shadow-sm">
+  <p className="font-semibold">
+    Settimanale: € {weeklyAvg.toFixed(2)}
+  </p>
+  <p className="font-semibold">
+    Mensile: € {monthlyAvg.toFixed(2)}
+  </p>
+</div>
 
       {/* CONFIG */}
-      <button onClick={() => setShowConfig(!showConfig)}>
-        ⚙️ Configurazione
-      </button>
+<button
+  onClick={() => setShowConfig(!showConfig)}
+  className="w-full bg-gray-800 text-white p-4 rounded-xl font-semibold mb-4"
+>
+  ⚙️ Configurazione
+</button>
 
       {showConfig && (
         <div>
