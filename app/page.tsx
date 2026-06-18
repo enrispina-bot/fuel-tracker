@@ -191,6 +191,31 @@ const total = filtered.reduce((acc, e) => {
   const weeklyAvg = total / 26;
   const monthlyAvg = total / 6;
 
+// ✅ GRAFICO MENSILE
+  const currentYear = new Date().getFullYear();
+
+const monthlyTotals = Array(12).fill(0);
+
+entries.forEach((e) => {
+  const date = new Date(e.date);
+  if (date.getFullYear() !== currentYear) return;
+
+  const month = date.getMonth();
+
+  const normalized = String(e.euro).replace(",", ".");
+  const value = Number(normalized);
+
+  if (!isNaN(value)) {
+    monthlyTotals[month] += value;
+  }
+});
+
+      const months = [
+  "Gen", "Feb", "Mar", "Apr", "Mag", "Giu",
+  "Lug", "Ago", "Set", "Ott", "Nov", "Dic"
+];
+  const maxValue = Math.max(...monthlyTotals, 1);    
+
   // ✅ SORT ultimi 5 corretti
   const lastFive = [...entries]
     .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
@@ -285,8 +310,46 @@ const total = filtered.reduce((acc, e) => {
   </p>
 </div>
 
-      
 
+
+
+
+{/* GRAFICO MENSILE */}
+<div className="bg-white rounded-xl p-4 mb-6 shadow-sm">
+  <h2 className="text-lg font-semibold mb-4 text-center">
+    Andamento mensile ({new Date().getFullYear()})
+  </h2>
+
+  <div className="flex items-end gap-2 h-40">
+    {monthlyTotals.map((value, i) => {
+      const height = (value / maxValue) * 100;
+
+      return (
+        <div key={i} className="flex flex-col items-center flex-1">
+          
+          {/* barra */}
+          <div
+            className="w-full bg-blue-500 rounded-t"
+            style={{ height: `${height}%` }}
+          ></div>
+
+          {/* valore */}
+          <span className="text-xs mt-1">
+            €{value.toFixed(0)}
+          </span>
+
+          {/* mese */}
+          <span className="text-xs text-gray-500">
+            {months[i]}
+          </span>
+        </div>
+      );
+    })}
+  </div>
+</div>
+
+
+      
       {/* CONFIG */}
 <button
   onClick={() => setShowConfig(!showConfig)}
