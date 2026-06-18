@@ -9,9 +9,11 @@ import { collection, addDoc, getDocs, updateDoc, doc } from "firebase/firestore"
 type Entry = {
   id?: string;
   date: string;
-  km: number;
-  liters: number;
-  euro: number;
+  
+km: number | string;
+liters: number | string;
+euro: number | string;
+
 };
 
 export default function Home() {
@@ -96,46 +98,34 @@ const [form, setForm] = useState({
 };
 
   // ✅ UPDATE ENTRY (fix input edit)
-  const updateEntry = async (
-    index: number,
-    field: keyof Entry,
-    value: string
-  ) => {
-    const entry = entries[index];
-    if (!entry.id || !user) return;
+const updateEntry = async (
+  index: number,
+  field: keyof Entry,
+  value: string
+) => {
+  const entry = entries[index];
+  if (!entry.id || !user) return;
 
-
-const normalized = value.replace(",", ".");
-const numericValue =
-  normalized === "" || isNaN(Number(normalized))
-    ? ""
-    : Number(normalized);
-
-
-const updated = [...entries];
-updated[index] = {
-  ...entry,
-  [field]: numericValue === "" || isNaN(numericValue)
-    ? ""
-    : numericValue,
-};
-
-
-    
-
-    setEntries(updated);
-
-if (value !== "" && !isNaN(Number(value))) {
-      const ref = doc(db, "users", user.uid, "entries", entry.id);
- const normalized = value.replace(",", ".");
-
-if (normalized !== "" && !isNaN(Number(normalized))) {
-  await updateDoc(ref, {
-    [field]: Number(normalized),
-  });
-}
-    }
+  // ✅ aggiorna UI SEMPRE come stringa
+  const updated = [...entries];
+  updated[index] = {
+    ...entry,
+    [field]: value,
   };
+
+  setEntries(updated);
+
+  // ✅ salva su Firebase SOLO se numero valido
+  const normalized = value.replace(",", ".");
+
+  if (normalized !== "" && !isNaN(Number(normalized))) {
+    const ref = doc(db, "users", user.uid, "entries", entry.id);
+
+  await updateDoc(ref, {
+  [field]: Number(normalized),
+});
+  }
+};
 
   // ✅ IMPORT Excel
   const importExcel = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -238,81 +228,35 @@ if (normalized !== "" && !isNaN(Number(normalized))) {
       <div className="flex flex-col gap-4 mb-6">
        
 <input
-  
-type="text"
-inputMode="decimal"
-
-  placeholder="Km"
-  value={form.km || ""}
-onChange={(e) => {
-  const value = e.target.value;
-  const normalized = value.replace(",", ".");
-
-  const numberValue =
-    normalized === "" || isNaN(Number(normalized))
-      ? 0
-      : Number(normalized);
-
-  setForm({
-    ...form,
-    km: e.target.value,
-  });
-}}
-  className="border border-gray-300 p-4 rounded-xl text-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
+  type="text"
+  inputMode="decimal"
+  value={entry.km ?? ""}
+  onChange={(e) =>
+    updateEntry(realIndex, "km", e.target.value)
+  }
+  className="w-full p-1 border rounded"
 />
 
 
-        <input
-         
-type="text"
-inputMode="decimal"
+<input
+  type="text"
+  inputMode="decimal"
+  value={entry.liters ?? ""}
+  onChange={(e) =>
+    updateEntry(realIndex, "liters", e.target.value)
+  }
+  className="w-full p-1 border rounded"
+/>
 
-          placeholder="Litri"
-          value={form.liters || ""}
- 
-onChange={(e) => {
-      const value = e.target.value;
-      const normalized = value.replace(",", ".");
-
-      const numberValue =
-        normalized === "" || isNaN(Number(normalized))
-          ? 0
-          : Number(normalized);
-
-      setForm({
-        ...form,
-        liters: e.target.value,
-      });
-    }}
-
-           className="border border-gray-300 p-4 rounded-xl text-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
-        />
-
-        <input
-         
-type="text"
-inputMode="decimal"
-
-          placeholder="Euro"
-          value={form.euro || ""}
-        
-onChange={(e) => {
-      const value = e.target.value;
-      const normalized = value.replace(",", ".");
-
-      const numberValue =
-        normalized === "" || isNaN(Number(normalized))
-          ? 0
-          : Number(normalized);
-
-      setForm({
-        ...form,
-        euro: e.target.value,
-      });
-    }}
-
-           className="border border-gray-300 p-4 rounded-xl text-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
-        />
+<input
+  type="text"
+  inputMode="decimal"
+  value={entry.euro ?? ""}
+  onChange={(e) =>
+    updateEntry(realIndex, "euro", e.target.value)
+  }
+  className="w-full p-1 border rounded"
+/>
 
     <button
   onClick={addEntry}
