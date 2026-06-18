@@ -16,7 +16,13 @@ type Entry = {
 
 export default function Home() {
   const [entries, setEntries] = useState<Entry[]>([]);
-  const [form, setForm] = useState({ km: 0, liters: 0, euro: 0 });
+
+const [form, setForm] = useState({
+  km: "",
+  liters: "",
+  euro: "",
+});
+
   const [showConfig, setShowConfig] = useState(false);
   const [user, setUser] = useState<any>(null);
 
@@ -55,23 +61,39 @@ export default function Home() {
   };
 
   // ✅ ADD ENTRY
-  const addEntry = async () => {
-    if (!form.km || !form.liters || !form.euro || !user) return;
+ const addEntry = async () => {
+  if (!form.km || !form.liters || !form.euro || !user) return;
 
-    const maxKm = Math.max(...entries.map((e) => e.km), 0);
-    if (form.km < maxKm) {
-      alert("Errore: Km inferiori al massimo registrato");
-      return;
-    }
+  const km = Number(form.km.replace(",", "."));
+  const liters = Number(form.liters.replace(",", "."));
+  const euro = Number(form.euro.replace(",", "."));
 
-    const newEntry: Entry = {
-      ...form,
-      date: new Date().toISOString().split("T")[0],
-    };
+  if (isNaN(km) || isNaN(liters) || isNaN(euro)) {
+    alert("Inserisci valori validi");
+    return;
+  }
 
-    await addDoc(collection(db, "users", user.uid, "entries"), newEntry);
-    setEntries([...entries, newEntry]);
+  const maxKm = Math.max(...entries.map((e) => Number(e.km)), 0);
+
+  if (km < maxKm) {
+    alert("Errore: Km inferiori al massimo registrato");
+    return;
+  }
+
+  const newEntry: Entry = {
+    date: new Date().toISOString().split("T")[0],
+    km,
+    liters,
+    euro,
   };
+
+  await addDoc(collection(db, "users", user.uid, "entries"), newEntry);
+
+  setEntries([...entries, newEntry]);
+
+  // reset form
+  setForm({ km: "", liters: "", euro: "" });
+};
 
   // ✅ UPDATE ENTRY (fix input edit)
   const updateEntry = async (
@@ -233,7 +255,7 @@ onChange={(e) => {
 
   setForm({
     ...form,
-    km: numberValue,
+    km: e.target.value,
   });
 }}
   className="border border-gray-300 p-4 rounded-xl text-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
@@ -259,7 +281,7 @@ onChange={(e) => {
 
       setForm({
         ...form,
-        liters: numberValue,
+        liters: e.target.value,
       });
     }}
 
@@ -285,7 +307,7 @@ onChange={(e) => {
 
       setForm({
         ...form,
-        euro: numberValue,
+        euro: e.target.value,
       });
     }}
 
