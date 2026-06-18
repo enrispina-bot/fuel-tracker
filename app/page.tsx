@@ -180,26 +180,27 @@ export default function Home() {
     );
   }
 
-  return (
-    <div className="min-h-screen bg-gray-100 p-6 flex flex-col items-center">
-  <div className="w-full max-w-md bg-white rounded-2xl shadow-xl p-6">
-    
-</div>
-</div>
+ return (
+  <div className="min-h-screen bg-gray-100 p-6 flex flex-col items-center">
+    <div className="w-full max-w-md bg-white rounded-2xl shadow-xl p-6">
 
-    <div className="flex justify-between items-center mb-6">
-  <div>
-    <h1 className="text-2xl font-bold">🚗 Fuel Tracker</h1>
-    <p className="text-sm text-gray-500">{user.email}</p>
+      <div className="flex justify-between items-center mb-6">
+        <div>
+          <h1 className="text-2xl font-bold">🚗 Fuel Tracker</h1>
+          <p className="text-sm text-gray-500">{user.email}</p>
+        </div>
+
+        <button onClick={logout} className="text-sm text-red-500">
+          Logout
+        </button>
+      </div>
+
+      {/* resto app */}
+
+    </div>
   </div>
+);
 
-  <button
-    onClick={logout}
-    className="text-sm text-red-500 font-semibold"
-  >
-    Logout
-  </button>
-</div>
 
       {/* FORM */}
       <div className="flex flex-col gap-4 mb-6">
