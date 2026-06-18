@@ -317,31 +317,37 @@ entries.forEach((e) => {
 {/* GRAFICO MENSILE */}
 <div className="bg-white rounded-xl p-4 mb-6 shadow-sm">
   <h2 className="text-lg font-semibold mb-4 text-center">
-    Andamento mensile ({new Date().getFullYear()})
+    Andamento mensile ({currentYear})
   </h2>
 
-  <div className="flex items-end gap-2 h-40">
+  <div className="flex items-end gap-2 h-48">
     {monthlyTotals.map((value, i) => {
       const height = (value / maxValue) * 100;
 
       return (
         <div key={i} className="flex flex-col items-center flex-1">
-          
-          {/* barra */}
-          <div
-            className="w-full bg-blue-500 rounded-t"
-            style={{ height: `${height}%` }}
-          ></div>
 
-          {/* valore */}
-          <span className="text-xs mt-1">
+          {/* VALORE SOPRA */}
+          <span className="text-xs font-semibold mb-1">
             €{value.toFixed(0)}
           </span>
 
-          {/* mese */}
-          <span className="text-xs text-gray-500">
+          {/* CONTENITORE BARRA */}
+          <div className="w-full h-32 flex items-end">
+            <div
+              className="w-full rounded-t-md bg-blue-500 transition-all duration-500"
+              style={{
+                height: `${height}%`,
+                minHeight: value > 0 ? "4px" : "0px",
+              }}
+            />
+          </div>
+
+          {/* MESE */}
+          <span className="text-xs text-gray-500 mt-1">
             {months[i]}
           </span>
+
         </div>
       );
     })}
