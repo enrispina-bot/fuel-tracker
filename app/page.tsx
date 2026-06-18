@@ -82,17 +82,22 @@ export default function Home() {
     const entry = entries[index];
     if (!entry.id || !user) return;
 
-    const numericValue = value === "" ? "" : Number(value);
+const numericValue = value === "" ? "" : Number(value);
 
-    const updated = [...entries];
-    updated[index] = {
-      ...entry,
-      [field]: numericValue,
-    };
+const updated = [...entries];
+updated[index] = {
+  ...entry,
+  [field]: numericValue === "" || isNaN(numericValue)
+    ? ""
+    : numericValue,
+};
+
+
+    
 
     setEntries(updated);
 
-    if (value !== "") {
+if (value !== "" && !isNaN(Number(value))) {
       const ref = doc(db, "users", user.uid, "entries", entry.id);
       await updateDoc(ref, { [field]: Number(value) });
     }
