@@ -255,50 +255,72 @@ export default function Home() {
 </button>
 
       {showConfig && (
-        <div>
+        <div className="bg-gray-50 rounded-xl p-4">
           <button onClick={exportExcel}>Export</button>
           <input type="file" onChange={importExcel} />
 
           <h2>Ultimi 5</h2>
 
-          <table>
-            <tbody>
-              {lastFive.map((entry, i) => {
-                const realIndex =
-                  entries.findIndex((e) => e.id === entry.id);
 
-                return (
-                  <tr key={entry.id}>
-                    <td>{entry.date}</td>
-                    <td>
-                      <input
-                        value={entry.km ?? ""}
-                        onChange={(e) =>
-                          updateEntry(realIndex, "km", e.target.value)
-                        }
-                      />
-                    </td>
-                    <td>
-                      <input
-                        value={entry.liters ?? ""}
-                        onChange={(e) =>
-                          updateEntry(realIndex, "liters", e.target.value)
-                        }
-                      />
-                    </td>
-                    <td>
-                      <input
-                        value={entry.euro ?? ""}
-                        onChange={(e) =>
-                          updateEntry(realIndex, "euro", e.target.value)
-                        }
-                      />
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
+<table className="w-full text-sm border mt-4">
+  <thead>
+    <tr>
+      <th className="border p-2">Data</th>
+      <th className="border p-2">Km</th>
+      <th className="border p-2">Litri</th>
+      <th className="border p-2">€</th>
+    </tr>
+  </thead>
+
+  <tbody>
+    {lastFive.map((entry) => {
+      const realIndex = entries.findIndex(
+        (e) => e.id === entry.id
+      );
+
+      return (
+        <tr key={entry.id}>
+          <td className="border p-2">{entry.date}</td>
+
+          <td className="border p-2">
+            <input
+              value={entry.km ?? ""}
+              onChange={(e) =>
+                updateEntry(realIndex, "km", e.target.value)
+              }
+              className="w-full"
+            />
+          </td>
+
+          <td className="border p-2">
+            <input
+              value={entry.liters ?? ""}
+              onChange={(e) =>
+                updateEntry(realIndex, "liters", e.target.value)
+              }
+              className="w-full"
+            />
+          </td>
+
+          <td className="border p-2">
+            <input
+              value={entry.euro ?? ""}
+              onChange={(e) =>
+                updateEntry(realIndex, "euro", e.target.value)
+              }
+              className="w-full"
+            />
+          </td>
+        </tr>
+      );
+    })}
+  </tbody>
+</table>
+
+
+
+
+          
         </div>
       )}
     </div>
