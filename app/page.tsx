@@ -182,11 +182,11 @@ const imported = json
     (e) => new Date(e.date) >= sixMonthsAgo
   );
 
-const total = filtered.reduce(
-  (acc, e) => acc + (isNaN(Number(e.euro)) ? 0 : Number(e.euro)),
-  0
-);
-
+const total = filtered.reduce((acc, e) => {
+  const normalized = String(e.euro).replace(",", ".");
+  const value = Number(normalized);
+  return acc + (isNaN(value) ? 0 : value);
+}, 0);
 
   const weeklyAvg = total / 26;
   const monthlyAvg = total / 6;
@@ -276,7 +276,14 @@ const total = filtered.reduce(
 
 </div>
 
-
+<div className="bg-gray-50 rounded-xl p-4 mb-6 shadow-sm">
+  <p className="font-semibold">
+    Media settimanale: € {weeklyAvg.toFixed(2)}
+  </p>
+  <p className="font-semibold">
+    Media mensile: € {monthlyAvg.toFixed(2)}
+  </p>
+</div>
 
       
 
