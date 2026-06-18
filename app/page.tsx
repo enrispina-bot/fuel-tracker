@@ -222,56 +222,63 @@ const total = filtered.reduce(
         </button>
       </div>
 
-        {/* FORM */}
-      <div className="flex flex-col gap-4 mb-6">
-       
-<input
-  type="text"
-  inputMode="decimal"
-  value={entry.km ?? ""}
-  onChange={(e) =>
-    updateEntry(realIndex, "km", e.target.value)
-  }
-  className="w-full p-1 border rounded"
-/>
+{/* FORM */}
+<div className="flex flex-col gap-4 mb-6">
 
+  <input
+    type="text"
+    inputMode="decimal"
+    placeholder="Km"
+    value={form.km}
+    onChange={(e) =>
+      setForm({
+        ...form,
+        km: e.target.value,
+      })
+    }
+    className="border border-gray-300 p-4 rounded-xl text-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
+  />
 
-<input
-  type="text"
-  inputMode="decimal"
-  value={entry.liters ?? ""}
-  onChange={(e) =>
-    updateEntry(realIndex, "liters", e.target.value)
-  }
-  className="w-full p-1 border rounded"
-/>
+  <input
+    type="text"
+    inputMode="decimal"
+    placeholder="Litri"
+    value={form.liters}
+    onChange={(e) =>
+      setForm({
+        ...form,
+        liters: e.target.value,
+      })
+    }
+    className="border border-gray-300 p-4 rounded-xl text-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
+  />
 
-<input
-  type="text"
-  inputMode="decimal"
-  value={entry.euro ?? ""}
-  onChange={(e) =>
-    updateEntry(realIndex, "euro", e.target.value)
-  }
-  className="w-full p-1 border rounded"
-/>
+  <input
+    type="text"
+    inputMode="decimal"
+    placeholder="Euro"
+    value={form.euro}
+    onChange={(e) =>
+      setForm({
+        ...form,
+        euro: e.target.value,
+      })
+    }
+    className="border border-gray-300 p-4 rounded-xl text-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
+  />
 
-    <button
-  onClick={addEntry}
-  className="bg-blue-500 text-white p-4 rounded-xl text-lg font-bold shadow-md active:scale-95 transition"
->
-  Salva
-</button>
-      </div>
+  <button
+    onClick={addEntry}
+    className="bg-blue-500 text-white p-4 rounded-xl text-lg font-bold shadow-md active:scale-95 transition"
+  >
+    Salva
+  </button>
 
-   <div className="bg-gray-50 rounded-xl p-4 mb-6 shadow-sm">
-  <p className="font-semibold">
-    Settimanale: € {weeklyAvg.toFixed(2)}
-  </p>
-  <p className="font-semibold">
-    Mensile: € {monthlyAvg.toFixed(2)}
-  </p>
 </div>
+
+
+
+      
 
       {/* CONFIG */}
 <button
